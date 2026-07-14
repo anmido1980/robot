@@ -1,0 +1,86 @@
+# Donchian Breakout v2 — paper-trading конфиг
+# Стратегия: Si/1h Donchian (20/10) + ADX>15
+# Описание: 01-docs/strategies/donchian_v2.md
+# Round 2 бэктест: 04-output/2026-06-15_donchian_round2.md
+# 92 trades за 5+ лет, OOS Sharpe 2.69, MaxDD 11.73%
+
+# === Режим работы ==========================================================
+mode: paper  # paper | live (live только после ≥4 нед. paper)
+
+# === Брокер =================================================================
+broker:
+  account_type: sandbox  # sandbox | invest_box (live)
+  ticker: Si             # фьючерс USD/RUB
+  class_code: SPBFUT
+  # Токен берётся из .env: T_INVEST_SANDBOX_TOKEN или T_INVEST_PROD_TOKEN
+  token_env: T_INVEST_SANDBOX_TOKEN
+
+# === Стратегия ==============================================================
+strategy:
+  name: donchian_v2
+  module: strategies.swing.donchian_breakout_v2.strategy
+  class: DonchianBreakoutV2
+
+  config:
+    entry_period: 20
+    exit_period: 10
+    atr_period: 14
+    stop_atr_mult: 2.0
+    adx_min: 15.0
+    adx_period: 14
+    volume_min_ratio: 0.0
+    ema_period: 0  # daily-trend фильтр выключен
+    strategy_id: donchian_v2_paper
+
+  timeframe: 1h  # рабочий таймфрейм (1 час)
+
+# === Размер позиции =========================================================
+position:
+  contracts: 1                  # фиксированный размер для paper
+  max_position_pct: 0.5         # макс. доля от депозита (из RiskConfig)
+  pyramiding: false             # пирамидинг выключен
+  max_concurrent_positions: 1   # только 1 позиция одновременно
+
+# === Риск-менеджер ==========================================================
+risk:
+  max_daily_loss_pct: 0.05      # -5% за день → kill-switch
+  kill_switch:
+    manual:
+      flag_path: STOP.flag      # создать файл для ручной остановки
+    auto:
+      trigger_on_daily_loss: true
+
+# === Подписки на данные =====================================================
+market_data:
+  provider: tinvest  # T-Invest gRPC
+  history_days: 30   # загрузить 30 дней истории при старте
+  resample: false    # данные приходят готовые 1h
+
+# === Клиринг и расписание ===================================================
+schedule:
+  # Стратегия не торгует в клиринг (23:50–00:30 МСК) и в аварийных режимах
+  skip_clearing: true
+  clearing_start: "23:50"
+  clearing_end: "00:30"
+  # Рабочие дни: пн–пт
+  work_days: [mon, tue, wed, thu, fri]
+
+# === Логирование ============================================================
+logging:
+  log_dir: 06-logs/runs
+  journal:
+    enabled: true
+    type: sqlite
+    path: 06-logs/journal/donchian_v2.sqlite
+  daily_report:
+    enabled: true
+    output_dir: 01-docs/journal
+  log_level: INFO  # DEBUG для отладки
+
+# === Метрики paper-этапа ===================================================
+paper_metrics:
+  # Расхождение с бэктестом ≤ 30% за 4 недели → можно в live
+  max_pnl_divergence_pct: 0.30
+  min_weeks_before_live: 4
+  min_oos_sharpe_target: 0.5
+  review_date: weekly  # проверка каждую неделю

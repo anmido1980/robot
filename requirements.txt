@@ -1,0 +1,52 @@
+# T-Invest API
+# Официальный пакет удалён с PyPI, ставим из git. Коммит зафиксирован
+# (последний коммит master-ветки репозитория Tinkoff/invest-python, 2023-08-06).
+# При появлении актуального PyPI-релиза — заменить на pip install tinkoff-investments==X.Y.Z
+tinkoff-investments @ git+https://github.com/Tinkoff/invest-python.git@1cc84950266d62cd0bc7a43ad764dddfd4252630
+
+# Runtime-зависимости T-Invest
+grpcio>=1.39,<2.0
+protobuf>=4.21.6,<5.0
+python-dateutil>=2.8.2,<3.0
+cachetools>=5.2,<6.0
+deprecation>=2.1,<3.0
+
+# Обработка данных
+pandas>=2.0
+numpy>=1.24
+
+# Валидация моделей
+pydantic>=2.5
+annotated-types>=0.7
+
+# Логирование
+loguru>=0.7
+
+# Конфигурация
+python-dotenv>=1.0
+
+# Тестирование
+pytest>=8.0
+pytest-mock>=3.12
+pytest-asyncio>=0.23
+
+# Утилиты
+typing-extensions>=4.0
+
+# HTTP-клиент (MOEX ISS API)
+httpx>=0.27
+
+# Telegram-алерты
+aiohttp>=3.9
+
+# Хранение исторических данных
+pyarrow>=15.0
+
+# YAML-конфиги runner'а
+pyyaml>=6.0
+
+# MCP (Model Context Protocol) для интеграции с Claude Code
+mcp>=1.6.0
+
+# Визуализация
+matplotlib>=3.8
